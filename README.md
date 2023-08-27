@@ -48,10 +48,10 @@ The current version of the plugin supports the following:
 
 #### Basic
 
-*   ```:CMake``` Creates the build directory based on the setup opts
-*   ```:CMakeReset``` Deletes and recreates the build directory by using
-    ```:CMake```
+*   ```:CMakeGenerate``` Generates CMake files
 *   ```:CMakeBuild``` Builds the current CMake project
+*   ```:CMakeReset``` Deletes and recreates the build directory by using
+    ```:CMakeBuild```
 *   ```:CMakeClean``` Deletes the build directory folder
 
 #### Execute
@@ -72,14 +72,17 @@ require("simple-cmake").setup({
   reload_after_save = false,
   enable_compile_commands = false,
   vimspector_support = false,
+  extra_opts = {}, -- -D prefix options
 
   -- Build path
   build_directory_prefix = "cmake-build-",
-  buld_type = "Debug" | "Release", -- default build type
+  build_type = "Debug" | "Release", -- default build type
   generator = "Ninja" | "Make",
   kits_path = nil, -- NOTE: CMake kits are not supported yet
 
   -- Debugging through Vimspector
+  -- NOTE: the default value for vimspector_default_opts is nil
+  -- This is just example opts that uses clangd
   -- See adapters from https://github.com/puremourning/vimspector#c-c-rust-etc
   vimspector_default_opts = {
     adapter = "clangd",
