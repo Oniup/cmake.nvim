@@ -1,6 +1,6 @@
-# simple-cmake.nvim
+# cmake.nvim
 
-simple-cmake.nvim is a simple plugin that handles cmake and building your C/C++
+cmake.nvim is a simple plugin that handles cmake and building your C/C++
 projects a little easier, while easily setting cmake and debug options
 
 #### Installation and Setup
@@ -8,14 +8,14 @@ projects a little easier, while easily setting cmake and debug options
 using [Vim Plug](https://github.com/junegunn/vim-plug)
 
 ```vim
-Plug "Oniup/simple-cmake.nvim"
+Plug "Oniup/cmake.nvim"
 ```
 
 Using [Packer](https://github.com/wbthomason/packer.nvim)
 
 ```lua
 use {
-  "Oniup/simple-cmake.nvim",
+  "Oniup/cmake.nvim",
    config = function()
      -- ...
    end,
@@ -26,7 +26,7 @@ using [Lazy](https://github.com/folke/lazy.nvim)
 
 ```lua
 return {
-  "Oniup/simple-cmake.nvim",
+  "Oniup/cmake.nvim",
   opts = {
     -- ...
   },
@@ -35,7 +35,7 @@ return {
 -- OR
 
 {
-  "Oniup/simple-cmake.nvim",
+  "Oniup/cmake.nvim",
   opts = {
     -- ...
   },
@@ -66,7 +66,7 @@ The current version of the plugin supports the following:
 Using the default configuration as an example
 
 ```lua
-require("simple-cmake").setup({
+require("cmake").setup({
   -- Common
   executable = "cmake",
   reload_after_save = false,
@@ -108,6 +108,6 @@ require("simple-cmake").setup({
 
 > This is my first plugin, so its most likely not the best option. Better
 > options are [cmake4vim](https://github.com/ilyachur/cmake4vim),
-> [cmake-tools.vim](https://github.com/Civitasv/cmake-tools.nvim). However,
+> [cmake-tools.nvim](https://github.com/Civitasv/cmake-tools.nvim). However,
 > using these plugins on Windows, I found to be annoying, therefore I developed
 > this plugin
