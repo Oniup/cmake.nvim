@@ -1,7 +1,7 @@
 local utils = {}
 
 utils.log = function(msg, level)
-  vim.notify(msg, level, { title = "Cutilsake:" })
+  vim.notify(msg, level, { list = "Cutilsake:" })
 end
 
 function utils.log_info(msg)
@@ -14,6 +14,14 @@ end
 
 function utils.log_error(msg)
   utils.log(msg, vim.log.levels.ERROR)
+end
+
+function utils.os_diff(win32_result, unix_result)
+  if vim.fn.has("win32") then
+    return win32_result
+  else
+    return unix_result
+  end
 end
 
 local function table_fill_missing(dest, default, key)
@@ -49,12 +57,12 @@ function utils.table_length(opts)
   return n
 end
 
-function utils.os_diff(win32_result, unix_result)
-  if vim.fn.has("win32") then
-    return win32_result
-  else
-    return unix_result
+function utils.list_to_string(list)
+  local str = list[1]
+  for i = 2, #list do
+    str = str .. " " .. list[i]
   end
+  return str
 end
 
 return utils
