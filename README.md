@@ -67,40 +67,7 @@ Using the default configuration as an example
 
 ```lua
 require("cmake").setup({
-  -- Common
-  executable = "cmake",
-  reload_after_save = false,
-  enable_compile_commands = false,
-  vimspector_support = false,
-  extra_opts = {}, -- -D prefix options
-
-  -- Build path
-  build_directory_prefix = "cmake-build-",
-  build_type = "Debug" | "Release", -- default build type
-  generator = "Ninja" | "Make",
-  kits_path = nil, -- NOTE: CMake kits are not supported yet
-
-  -- Debugging through Vimspector
-  -- NOTE: the default value for vimspector_default_opts is nil
-  -- This is just example opts that uses clangd
-  -- See adapters from https://github.com/puremourning/vimspector#c-c-rust-etc
-  vimspector_default_opts = {
-    adapter = "clangd",
-    configuration = {
-      request = "Launch",
-      program = nil, -- keep nil if you want plugin to handle directory
-      cwd = "${workspaceRoot}",
-      stopAtEntry = false,
-      MiMode = "gdb",
-      setupCommands = {
-        {
-          description = "Enable pretty-printing for gdb",
-          text = "-enable-pretty-printing",
-          ignoreFailures = false
-        },
-      },
-    },
-  },
+  -- TODO: ...
 })
 ```
 
@@ -111,3 +78,10 @@ require("cmake").setup({
 > [cmake-tools.nvim](https://github.com/Civitasv/cmake-tools.nvim). However,
 > using these plugins on Windows, I found to be annoying, therefore I developed
 > this plugin
+
+## License
+
+cmake.nvim  Copyright (C) 2023  Ewan Robson
+This program comes with ABSOLUTELY NO WARRANTY
+This is free software, and you are welcome to redistribute it
+under certain conditions

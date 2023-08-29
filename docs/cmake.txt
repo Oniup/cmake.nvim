@@ -1,0 +1,11 @@
+*cmake* simple-cmake.nvim - CMake integration for Neovim
+
+===============================================================================
+
+Contents ~
+
+1. Introduction                                     |cmake.nvim-introduction|
+
+===============================================================================
+                                                    *cmake.nvim-introduction*
+Introduction ~
