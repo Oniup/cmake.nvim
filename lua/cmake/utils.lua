@@ -58,8 +58,8 @@ function utils.table_length(opts)
 end
 
 function utils.list_to_string(list)
-  local str = list[1]
-  for i = 2, #list do
+  local str = ""
+  for i = 1, #list do
     str = str .. " " .. list[i]
   end
   return str

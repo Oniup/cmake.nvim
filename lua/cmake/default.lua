@@ -33,4 +33,11 @@ return {
       },
     },
   },
+  session = {
+    enable = false,
+    directory = {
+      unix = vim.fn.expand("~") .. "/.cache/cmake.nvim/",
+      win = vim.fn.expand("~") .. "\\AppData\\Local\\cmake.nvim\\",
+    },
+  },
 }

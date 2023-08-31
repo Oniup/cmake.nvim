@@ -1,5 +1,6 @@
 local utils = require("cmake.utils")
 local job = require("cmake.job")
+local session = require("cmake.session")
 
 local cmake = {}
 cmake.get_generator_commands = {
@@ -22,6 +23,7 @@ function cmake.setup(opts)
   local default = require("cmake.default")
   utils.table_fill_missing(opts, default)
   cmake.__opts = opts
+  session.set_opts(cmake.__opts.session)
 end
 
 function cmake.get_selected_kit()
@@ -46,7 +48,7 @@ function cmake.get_build_folder(kit)
   return kit.name
 end
 
-function cmake.build_targets()
+function cmake.show_build_targets()
   local build_folder = cmake.get_build_folder(cmake.get_selected_kit())
   if build_folder == nil then
     utils.log_error("No build folder defined")
@@ -92,10 +94,6 @@ function cmake.select_kit(target, check_type)
       "number (index) or a string (name)")
   end
   return false
-end
-
-function cmake.select_target(index, results)
-  -- TODO: ...
 end
 
 function cmake.get_generate_command()
@@ -165,6 +163,31 @@ function cmake.get_build_command()
   return command
 end
 
+function cmake.get_run_command()
+  if cmake.__selected_build_target ~= nil then
+    local executable = cmake.__selected_build_target
+    if vim.fn.has("win32") then
+      executable = executable .. ".exe"
+    end
+
+    local build_folder = cmake.get_build_folder(cmake.get_selected_kit())
+    if build_folder ~= nil then
+      local command
+      if vim.fn.has("win32") then
+        command = { ".\\" .. build_folder .. "\\" .. executable }
+      else
+        command = { "./" .. build_folder .. "/" .. executable }
+      end
+      return command
+    else
+      utils.log_error("No build folder")
+    end
+  else
+    utils.log_error("Need to select build target")
+  end
+  return nil
+end
+
 function cmake.generate()
   local command = cmake.get_generate_command()
   if command ~= nil then
@@ -180,26 +203,22 @@ function cmake.build()
 end
 
 function cmake.run()
-  if cmake.__selected_build_target ~= nil then
-    local executable = cmake.__selected_build_target
-    if vim.fn.has("win32") then
-      executable = executable .. ".exe"
-    end
+  local command = cmake.get_run_command()
+  if command ~= nil then
+    job.run_in_split(command)
+  end
+end
 
-    local build_folder = cmake.get_build_folder(cmake.get_selected_kit())
-    if build_folder ~= nil then
-      local command
-      if vim.fn.has("win32") then
-        command = { ".\\" .. build_folder .. "\\" .. executable }
-      else
-        command = { "./" .. build_folder .. "/" .. executable }
-      end
-      job.run_in_split(command)
-    else
-      utils.log_error("No build folder")
+function cmake.build_run()
+  local commands = {}
+  local build_command = cmake.get_build_command()
+  if build_command ~= nil then
+    table.insert(commands, build_command)
+    local run_command = cmake.get_run_command()
+    if run_command ~= nil then
+      table.insert(commands, run_command)
+      job.run_multiple_in_split(commands)
     end
-  else
-    utils.log_error("Need to select build target")
   end
 end
 
