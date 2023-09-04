@@ -3,6 +3,33 @@ local job = require("cmake.job")
 local session = require("cmake.session")
 
 local cmake = {}
+
+cmake.__opts = {
+  executable = "cmake",
+  enable_compile_commands = false,
+  show_command_in_output_buffer = false,
+  output_auto_scrolling = true,
+  kits = {
+    -- {
+    --   name = "Debug", -- can be called whatever
+    --   type = "debug", -- not cause sensitive
+    --   generator = require("cmake.utils").os_diff("Ninja", "Make"),
+    --   build_directory = "", -- if this is empty, then will add the name to the build_directory_prefix
+    --   c = "path/to/gcc", -- give path to compiler
+    --   cxx = "g++", -- or if in env, can just call it
+    --   opts = {},
+    -- },
+  },
+  build_directory_prefix = "cmake-build-",
+  session = {
+    enable = false,
+    directory = {
+      unix = vim.fn.expand("~") .. "/.cache/cmake.nvim/",
+      win = vim.fn.expand("~") .. "\\AppData\\Local\\cmake.nvim\\",
+    },
+  },
+}
+
 cmake.get_generator_commands = {
   make = function(build_folder)
     -- TODO: ...
@@ -20,15 +47,24 @@ cmake.get_generator_commands = {
 }
 
 function cmake.setup(opts)
-  local default = require("cmake.default")
-  utils.table_fill_missing(opts, default)
-  cmake.__opts = opts
+  cmake.__opts = vim.tbl_extend("force", cmake.__opts, opts)
+  job.setup(cmake.__opts.show_command_in_output_buffer, cmake.__opts.output_auto_scrolling)
   session.set_opts(cmake.__opts.session)
+end
+
+function cmake.show_plugin_configuration()
+  vim.print(vim.inspect(cmake.__opts))
 end
 
 function cmake.get_selected_kit()
   if cmake.__selected_kit == nil then
-    cmake.__selected_kit = cmake.__opts.kits[1]
+    if cmake.__opts.kits[1] ~= nil then
+      cmake.__selected_kit = cmake.__opts.kits[1]
+    else
+      utils.log_error("Need to have at least one kit defined, in configuration. "
+        .. "Show current configuration options by using "
+        .. ":CMakeShowPluginConfiguration")
+    end
   end
   return cmake.__selected_kit
 end
@@ -56,11 +92,27 @@ function cmake.show_build_targets()
   end
   local command = {
     cmake.__opts.executable, "--build", build_folder, "--target", "help" }
-  job.run_in_split(command)
+  job.run_in_split("Build Targets:", command)
 end
 
 function cmake.select_build_target(target)
   cmake.__selected_build_target = target
+
+  -- Setting up DAP
+  local dap_status, dap = pcall(require, "dap")
+  if dap_status then
+    local kit = cmake.get_selected_kit()
+    if string.lower(kit.type) == "debug" then
+      local build_folder = cmake.get_build_folder(kit)
+      utils.log_error("size: " .. #dap.configurations.cpp)
+      -- Modifying program path
+      for i = 1, #dap.configurations.cpp do
+        dap.configurations.cpp[i].program = vim.fn.getcwd() .. "/" .. build_folder
+            .. "/" .. cmake.__selected_build_target
+      end
+      dap.configurations.c = dap.configurations.cpp
+    end
+  end
 end
 
 function cmake.select_kit(target, check_type)
@@ -69,8 +121,8 @@ function cmake.select_kit(target, check_type)
       cmake.__selected_kit = cmake.__opts.kits[target]
       return true
     end
-    utils.log_error("Kit index (" .. target .. ") is greater than the total kits ("
-      .. #cmake.__opts.kits .. ")")
+    utils.log_error("Kit index (" .. target .. ") is greater than the total "
+      .. "kits (" .. #cmake.__opts.kits .. ")")
   elseif type(target) == "string" then
     if check_type == nil then
       check_type = false
@@ -151,7 +203,8 @@ function cmake.get_build_command()
 
   local command;
   if kit.generator ~= nil then
-    command = cmake.get_generator_commands[string.lower(kit.generator)](build_folder)
+    command =
+        cmake.get_generator_commands[string.lower(kit.generator)](build_folder)
   else
     if vim.fn.has("win32") then
       command = cmake.get_generator_commands.ninja(build_folder)
@@ -191,34 +244,35 @@ end
 function cmake.generate()
   local command = cmake.get_generate_command()
   if command ~= nil then
-    job.run_in_split(command)
+    job.run_in_split("CMake Generate:", { command })
   end
 end
 
 function cmake.build()
   local command = cmake.get_build_command()
   if command ~= nil then
-    job.run_in_split(command)
+    job.run_in_split("CMake Build:", { command })
   end
 end
 
 function cmake.run()
   local command = cmake.get_run_command()
   if command ~= nil then
-    job.run_in_split(command)
+    job.run_in_split("CMake Run " .. cmake.__selected_build_target
+      .. " target:", { command })
   end
 end
 
 function cmake.build_run()
-  local commands = {}
   local build_command = cmake.get_build_command()
-  if build_command ~= nil then
-    table.insert(commands, build_command)
-    local run_command = cmake.get_run_command()
-    if run_command ~= nil then
-      table.insert(commands, run_command)
-      job.run_multiple_in_split(commands)
-    end
+  local run_command = cmake.get_run_command()
+  if build_command ~= nil and run_command ~= nil then
+    local commands = {
+      build_command,
+      run_command
+    }
+    job.run_in_split("CMake Build and Run " .. cmake.__selected_build_target
+      .. " target:", commands)
   end
 end
 

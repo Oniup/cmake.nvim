@@ -24,31 +24,6 @@ function utils.os_diff(win32_result, unix_result)
   end
 end
 
-local function table_fill_missing(dest, default, key)
-  if dest[key] == nil then
-    dest[key] = default[key]
-  else
-    if type(dest[key]) ~= type(default[key]) then
-      utils.log_error("Incorrect type, make sure that all options are"
-        .. " of the correct type by using :help cmake.nvim")
-    elseif type(dest[key]) == "table" then
-      for k, _ in pairs(default[key]) do
-        table_fill_missing(dest[key], default[key], k)
-      end
-    end
-  end
-end
-
-function utils.table_fill_missing(dest, default)
-  if dest == nil then
-    dest = default
-  else
-    for k, _ in pairs(default) do
-      table_fill_missing(dest, default, k)
-    end
-  end
-end
-
 function utils.table_length(opts)
   local n = 0
   for _ in pairs(opts) do
@@ -57,12 +32,17 @@ function utils.table_length(opts)
   return n
 end
 
+--- @param list table
+--- @return string
 function utils.list_to_string(list)
-  local str = ""
-  for i = 1, #list do
-    str = str .. " " .. list[i]
+  if #list > 1 then
+    local str = list[1]
+    for i = 2, #list do
+      str = str .. " " .. list[i]
+    end
+    return str
   end
-  return str
+  return ""
 end
 
 return utils

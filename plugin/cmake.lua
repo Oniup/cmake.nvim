@@ -8,6 +8,10 @@ vim.api.nvim_create_user_command("CMakeBuildRun", cmake.build_run, {})
 vim.api.nvim_create_user_command("CMakeShowBuildTargets",
   cmake.show_build_targets, {})
 
+vim.api.nvim_create_user_command("CMakeShowPluginConfiguration",
+  cmake.show_plugin_configuration, {})
+
+
 vim.api.nvim_create_user_command("CMakeSelectKit", function(opts)
   if cmake.select_kit(opts.args) then
     local title = cmake.__selected_kit.name
