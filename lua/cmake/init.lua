@@ -9,6 +9,7 @@ cmake.__opts = {
   enable_compile_commands = false,
   show_command_in_output_buffer = false,
   output_auto_scrolling = true,
+  auto_scrolling = true,
   kits = {
     -- {
     --   name = "Debug", -- can be called whatever
@@ -23,10 +24,6 @@ cmake.__opts = {
   build_directory_prefix = "cmake-build-",
   session = {
     enable = false,
-    directory = {
-      unix = vim.fn.expand("~") .. "/.cache/cmake.nvim/",
-      win = vim.fn.expand("~") .. "\\AppData\\Local\\cmake.nvim\\",
-    },
   },
 }
 
@@ -104,7 +101,6 @@ function cmake.select_build_target(target)
     local kit = cmake.get_selected_kit()
     if string.lower(kit.type) == "debug" then
       local build_folder = cmake.get_build_folder(kit)
-      utils.log_error("size: " .. #dap.configurations.cpp)
       -- Modifying program path
       for i = 1, #dap.configurations.cpp do
         dap.configurations.cpp[i].program = vim.fn.getcwd() .. "/" .. build_folder

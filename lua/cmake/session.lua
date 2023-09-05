@@ -1,5 +1,4 @@
 local utils = require("cmake.utils")
-local Path = require("plenary.path")
 
 local session = {}
 session.__opts = {}
